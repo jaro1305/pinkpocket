@@ -12,7 +12,7 @@ public class AidAlgo {
     AidStereoChannelManager pManagerR;
 
     //Mutex now defined as void ptr and cast within the function to cut down on preprocessor required if MT is disabled
-    Lock pMyMutex;
+    NullCheckingScopedLock pMyMutex;
 
 
     //We have dual constructors here depending on whether you want a mono or a stereo processor
@@ -24,7 +24,7 @@ public class AidAlgo {
         pMOCsimContainer = new MOCsimContainer(_sharedPars);
         pManagerL = new AidStereoChannelManager(_lPars, _sharedPars, pMOCsimContainer);
         pManagerR = new AidStereoChannelManager(_rPars, _sharedPars, pMOCsimContainer);
-        pMyMutex = _pMyMutex;
+        pMyMutex = new NullCheckingScopedLock(_pMyMutex);
     }
 
     public AidAlgo(UniqueStereoParams _lPars,
@@ -34,13 +34,9 @@ public class AidAlgo {
 
         pManagerL = new AidStereoChannelManager(_lPars, _sharedPars, pMOCsimContainer);
         pManagerR = null;
-        pMyMutex = _pMyMutex;
+        pMyMutex = new NullCheckingScopedLock(_pMyMutex);
 
     }
-
-    ;
-
-    //cMOCsimContainer MOCsimContainer(sharedPars);
 
     void processSampleBlock(double[][] inputChannelData,
                             int numInputChannels,

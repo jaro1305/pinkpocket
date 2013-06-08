@@ -80,5 +80,5 @@ public class FilterFrequencyBand extends AlgoProcessor {
 
         return gain * tmp;
     }
-};
+}
 
