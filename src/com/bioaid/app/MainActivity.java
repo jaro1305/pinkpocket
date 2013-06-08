@@ -1,5 +1,6 @@
 package com.bioaid.app;
 
+import com.bioaid.BioAidFilterService;
 import com.bioaid.app.R;
 import android.app.Activity;
 import android.content.IntentFilter;
@@ -81,23 +82,33 @@ public class MainActivity extends Activity {
 
     private class Streamer extends Thread {
         public void run() {
+            BioAidFilterService bafs = new BioAidFilterService();
             while (!isQuitting) {
                 if (isGoing) {
                     int i = MainActivity.this.audioRecorder.read(
                             MainActivity.this.data, 0,
                             MainActivity.AUDIO_BUFFER_SIZE);
                     if ((MainActivity.this.audioPlayer.getPlayState() == 3)
-                            && (i != -3))
+                            && (i != -3)) {
+                        // Processing goes on here
+                        double[] leftChannel = new double[AUDIO_BUFFER_SIZE / 2]; // assume 2 bytes per sample
+                        for(int j = 0; j < AUDIO_BUFFER_SIZE; j += 2) {
+                            leftChannel[j / 2] = (double)((data[j] & 0xff) | (data[j + 1] & 0xff) << 8);
+                        }
+                        double[] output = bafs.processBlock(leftChannel);
+                        byte[] outputBytes = new byte[AUDIO_BUFFER_SIZE];
+                        for(int j = 0; j < (AUDIO_BUFFER_SIZE / 2); j ++) {
+                            outputBytes[(j * 2)] = 0;
+                            outputBytes[(j * 2) + 1] = 0;
+                        }
+                        
                         MainActivity.this.audioPlayer.write(
                                 MainActivity.this.data, 0, i);
+                    }
                 }
             }
         }
     }
-    
-    
-    
-    
     
     public void onActionButtonClicked(View paramView) {
         if(!this.started) {
