@@ -37,12 +37,15 @@ public class AidStereoChannelManager extends AlgoProcessor {
 
 // This object only has gain for each stereo-chan and so it only needs to listen to unique_pars changes
             cU = unique_pars.addSubscriber(this);
+            cS = unique_pars.addSubscriber(this);
         }
 
         double process (double input){
             double tmp = inputGain * input; //Apply the input gain
             tmp = aRsim.process(tmp); // Apply any AR compression
+            System.out.println("aRsim = " + tmp);
             tmp = fBank.process(tmp); // Do sub-band processing
+            System.out.println("fBank = " + tmp);
 
             if (aRsim.getThresh_pa() < 1000.f) //ONly bother pumping samples if AR threshold is less than about 150 dB
                 aRsim.pumpSample(tmp); // Update the AR processor with current broadband output level

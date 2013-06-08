@@ -10,7 +10,7 @@ public class Main {
 
     public static void main(String args[]) {
         //DBGM(RAND_MAX);
-        int numSamples = 10;
+        int numSamples = 100;
 
         // the () at the end = zero init like calloc
         // * this was wrapped in boost::scoped_array
@@ -66,9 +66,9 @@ public class Main {
 
         // Use some randome numbers for the left channel instead ...
 //        std::generate_n ( & lDataIn[0], numSamples, gen_rand(-1.f, 1.f));
-        generate_n (lDataIn, numSamples, -1.f, 1.f);
-
-
+        generateSin(lDataIn, numSamples);
+        generateSin(rDataIn, numSamples);
+//        generate_n (lDataIn, numSamples, -1.f, 1.f);
 
         showData(lDataIn, rDataIn, numSamples);
 
@@ -83,16 +83,22 @@ public class Main {
             System.out.println("\n\n Demo 2\n\n");
             SharedStereoParams sharedPars = new SharedStereoParams(myMutex);
             UniqueStereoParams leftPars = new UniqueStereoParams(myMutex);
-            assert (!leftPars.setParam("OutputGain_dB", 6.f));
-            assert (!leftPars.setParam("InputGain_dB", 6.f));
-            assert (!leftPars.setParam("Band_3_Gain_dB", 10.f));
-            assert (!sharedPars.setParam("NumBands", 4.f));
+            leftPars.setParam("OutputGain_dB", 6.f);
+            leftPars.setParam("InputGain_dB", 6.f);
+            leftPars.setParam("Band_3_Gain_dB", 10.f);
+            sharedPars.setParam("NumBands", 4.f);
             AidAlgo myAlgo = new AidAlgo(leftPars, sharedPars, myMutex); //Supply with identical LR pars
             myAlgo.processSampleBlock(in2D, 1, out2D, 2, numSamples);
             showData(lDataOut, rDataOut, numSamples);
         }
         System.out.println("\n\n Demo 2 END \n\n");
 
+    }
+
+    private static void generateSin(double[] v, int numSamples) {
+        for (int i=0; i < numSamples; i++) {
+            v[i] = Math.sin(0.2D * i);
+        }
     }
 
     private static void generate_n(double[] v, int numSamples, float min, float max) {
@@ -104,9 +110,14 @@ public class Main {
     }
 
     static void showData(double[] L, double[] R, int numel) {
-        for (int nn = 0; nn < numel; ++nn)
-            System.out.println( "L[" + nn + "]=" + L[nn] + "  ----   "
-                    + "R[" + nn + "]=" + R[nn] + "\n");
+        double totalL = 0;
+        double totalR = 0;
+        for (int nn = 0; nn < numel; ++nn) {
+            System.out.println( "L[" + nn + "]=" + L[nn] + "  ----   " + "R[" + nn + "]=" + R[nn]);
+            totalL += L[nn];
+            totalR += R[nn];
+        }
+        System.out.println("totals : " + totalR + " " + totalL);
     }
 
 }

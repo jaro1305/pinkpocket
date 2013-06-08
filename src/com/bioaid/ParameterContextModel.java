@@ -49,7 +49,6 @@ public abstract class ParameterContextModel {
         return param == null ? defaultVal : param;
     }
 
-
     boolean isParam(String key) {
         return paramMap.containsKey(key);
     }
@@ -61,12 +60,15 @@ public abstract class ParameterContextModel {
         if (isNewKey || isNewVal) {
             paramMap.put(key, newVal);   //Only go to the effort of updating map if something is new
 
-            // TODO : where's the locking?
-            NullCheckingScopedLock l = new NullCheckingScopedLock(pMyMutex); //Lock this as short as possible
-            // TODO: not sure what's this supposed to be - looks like a listener call
-            // paramChangeSignal(this); //Only go to the effort of messaging if something is new
-            for (ParamContextClient listener : listeners) {
-                listener.updatePars();
+            pMyMutex.lock(); //Lock this as short as possible
+            try {
+                // TODO: not sure what's this supposed to be - looks like a listener call
+                // paramChangeSignal(this); //Only go to the effort of messaging if something is new
+                for (ParamContextClient listener : listeners) {
+                    listener.updatePars();
+                }
+            } finally {
+                pMyMutex.unlock();
             }
         }
 
