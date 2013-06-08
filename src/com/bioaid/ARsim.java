@@ -68,4 +68,4 @@ public class ARsim extends AlgoProcessor {
         circBuff_ptr.push_back(tmp);
     }
 
-};
+}
