@@ -42,6 +42,8 @@ public class MainActivity extends Activity {
     private ArrayList<Integer> outLevels;
     private Handler equaliserHandler;
     private static final int lastN = 10;
+    private double oldInLevel = 1;
+    private double oldOutLevel = 1;
 
     private void startPlaying() {
         audioPlayer = new AudioTrack(3, 
@@ -223,28 +225,32 @@ public class MainActivity extends Activity {
     public void updateEqualiser(long totalIn, long totalOut) {
         int maxLevels = 13;
         for(int k = 0; k < maxLevels; k++) {
-            short baseLevel = 5000;
+            short baseLevel = 15000;
             
             // use log for db
             double percentage = ((double)k) / ((double)(maxLevels - 1));
-            double inLevel = Math.max(0, (double)(totalIn - baseLevel));
+            double inLevel = Math.max(1, (double)(totalIn - baseLevel)); // 0 as first param would give -inf result
             inLevel = Math.log10(inLevel);
             inLevel /= Math.log10(Short.MAX_VALUE - baseLevel);
-            double outLevel = Math.max(0, (double)(totalOut - baseLevel));
+            double outLevel = Math.max(1, (double)(totalOut - baseLevel));
             outLevel = Math.log10(outLevel);
             outLevel /= Math.log10(Short.MAX_VALUE - baseLevel);
-            ImageView inView = (ImageView)MainActivity.this.findViewById(inLevels.get(k));
-            ImageView outView = (ImageView)MainActivity.this.findViewById(outLevels.get(k));
-            if(inLevel > percentage) {
+            ImageView inView = (ImageView)findViewById(inLevels.get(k));
+            ImageView outView = (ImageView)findViewById(outLevels.get(k));
+            double combination = (0.125 * inLevel) + (0.875 * oldInLevel); // smoothing
+            if((k == 0) || (combination > percentage)) {
                 inView.setVisibility(View.VISIBLE);
             } else {
                 inView.setVisibility(View.INVISIBLE);
             }
-            if(outLevel > percentage) {
+            oldInLevel = combination;
+            combination = (0.125 * outLevel) + (0.875 * oldOutLevel); // smoothing
+            if((k == 0) || (combination > percentage)) {
                 outView.setVisibility(View.VISIBLE);
             } else {
                 outView.setVisibility(View.INVISIBLE);
             }
+            oldOutLevel = combination;
         }
     }
     
