@@ -16,13 +16,13 @@ public class CircularBuffer<T> {
 
     public CircularBuffer(int size) {
         capacity = size;
-        for (int i=0; i < capacity; i++) {
+        for (int i = 0; i < capacity; i++) {
             list.add(null);
         }
     }
 
     public void set_capacity(int capacity) {
-        for (int i=this.capacity; i < capacity; i++) {
+        for (int i = this.capacity; i < capacity; i++) {
             list.add(null);
         }
         this.capacity = capacity;

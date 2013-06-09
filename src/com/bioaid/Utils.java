@@ -1,8 +1,8 @@
 package com.bioaid;
 
+import static java.lang.Math.log10;
 import static java.lang.Math.pow;
 import static java.lang.Math.abs;
-import static java.lang.Math.log10;
 
 /**
  * Created by jaro on 6/8/13.
@@ -10,29 +10,29 @@ import static java.lang.Math.log10;
 public class Utils {
 
 
-    private static final double LIN_OFFSET = 1e-20f;  // = -400 dB to protect from -Inf if log of zero attempted
+    private static final float LIN_OFFSET = 1e-20f;  // = -400 dB to protect from -Inf if log of zero attempted
 
     //---- STATIC METHODS -- (These should all be templatized)
-    static double lin2db(double linVal) {
-        return 20.0f * log10(abs(linVal) + LIN_OFFSET);
+    static float lin2db(float linVal) {
+        return (float)(20.0f * log10(abs(linVal) + LIN_OFFSET));
     }
 
     ;
 
-    static double db2lin(double dbVal) {
-        return pow(10.0, dbVal / 20.0f) - LIN_OFFSET;
+    static float db2lin(float dbVal) {
+        return (float)(pow(10.0, dbVal / 20.0f) - LIN_OFFSET);
     }
 
     ;
 
-    static double pa2dbspl(double paVal) {
-        return 20.0f * log10(LIN_OFFSET + abs(paVal) / 20e-6f);
+    static float pa2dbspl(float paVal) {
+        return 20.0f * (float)log10(LIN_OFFSET + abs(paVal) / 20e-6f);
     }
 
     ;
 
-    static double dbspl2pa(double dbsplVal) {
-        return 20e-6f * pow(10.0f, dbsplVal / 20.0f) - LIN_OFFSET;
+    static float dbspl2pa(float dbsplVal) {
+        return 20e-6f * (float)pow(10.0f, dbsplVal / 20.0f) - LIN_OFFSET;
     }
 
     ;

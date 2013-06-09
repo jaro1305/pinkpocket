@@ -7,15 +7,15 @@ public class DRNLBrokenStick extends AlgoProcessor {
 
     ParameterContextModel unique_pars_ref;
     int index; //Lexical-cast this to get parameters
-    double cmpThreshIN_pa, cmpThreshOUT;
-    double DRNLb, DRNLc;
+    float cmpThreshIN_pa, cmpThreshOUT;
+    float DRNLb, DRNLc;
 
     public void updatePars() {
         cmpThreshIN_pa = Utils.dbspl2pa(unique_pars_ref.getParam("Band_" + index + "_InstantaneousCmpThreshold_dBspl"));
         DRNLc = unique_pars_ref.getParam("Band_" + index + "_DRNLc", DRNLc);
 
-        DRNLb = Math.pow(cmpThreshIN_pa, 1.0f - DRNLc);
-        cmpThreshOUT = Math.pow(10.0f, (1.0f / (1.0f - DRNLc)) * Math.log10(DRNLb));
+        DRNLb = (float)Math.pow(cmpThreshIN_pa, 1.0f - DRNLc);
+        cmpThreshOUT = (float)Math.pow(10.0f, (1.0f / (1.0f - DRNLc)) * Math.log10(DRNLb));
     }
 
     public DRNLBrokenStick(ParameterContextModel _unique_pars, int _index) {
@@ -37,10 +37,10 @@ public class DRNLBrokenStick extends AlgoProcessor {
         cU = unique_pars_ref.addSubscriber(this);
     }
 
-    double process(double sigIn) {
-        double abs_x = Math.abs(sigIn);
+    float process(float sigIn) {
+        float abs_x = Math.abs(sigIn);
         if (abs_x > cmpThreshOUT)
-            return Math.signum(sigIn) * DRNLb * Math.pow(abs_x, DRNLc);
+            return (float)(Math.signum(sigIn) * DRNLb * Math.pow(abs_x, DRNLc));
         else
             return sigIn;
     }

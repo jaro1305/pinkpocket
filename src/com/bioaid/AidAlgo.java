@@ -38,9 +38,9 @@ public class AidAlgo {
 
     }
 
-    void processSampleBlock(double[][] inputChannelData,
+    void processSampleBlock(float[][] inputChannelData,
                             int numInputChannels,
-                            double[][] outputChannelData,
+                            float[][] outputChannelData,
                             int numOutputChannels,
                             int numSamples) {
 

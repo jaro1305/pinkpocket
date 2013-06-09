@@ -15,7 +15,7 @@ public class FilterBank extends AlgoProcessor {
 
     MOCsimContainer MOCsim_ref;
 
-//    typedef boost::shared_ptr<cFilterFrequencyBand> band_ptr; //must be shared if we stuff into vector
+    //    typedef boost::shared_ptr<cFilterFrequencyBand> band_ptr; //must be shared if we stuff into vector
 //    std::vector<band_ptr> chans;
     List<FilterFrequencyBand> chans = new ArrayList<FilterFrequencyBand>();
 
@@ -57,8 +57,8 @@ public class FilterBank extends AlgoProcessor {
 
     }
 
-    double process(double inputSample) {
-        double accumulatedOutput = 0.f;
+    float process(float inputSample) {
+        float accumulatedOutput = 0.f;
         for (int index = 0; index < numBands; index++) {
             accumulatedOutput += chans.get(index).process(inputSample);
         }
