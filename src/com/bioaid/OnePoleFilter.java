@@ -1,5 +1,7 @@
 package com.bioaid;
 
+import com.bioaid.app.MainActivity;
+
 /**
  * Created by jaro on 6/8/13.
  */
@@ -8,7 +10,9 @@ public class OnePoleFilter {
     private float a1, b0, m, dn;
 
     void initOnePoleCoeffs(float tc, float dt) {
-        if ((tc / dt) < 44.0f) // just under 1ms for 44.1 kHz
+
+        float freq = ((MainActivity.AUDIO_SAMPLING_RATE-1)/1000);//44.0f;
+        if ((tc / dt) < freq) // just under 1ms for 44.1 kHz
             a1 = 0.0f;
         else
             a1 = dt / tc - 1.0f;

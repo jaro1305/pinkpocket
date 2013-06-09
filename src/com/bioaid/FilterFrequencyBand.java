@@ -1,5 +1,7 @@
 package com.bioaid;
 
+import com.bioaid.app.MainActivity;
+
 /**
  * Created by jaro on 6/8/13.
  */
@@ -55,7 +57,7 @@ public class FilterFrequencyBand extends AlgoProcessor {
         gain = 1.0f;
         loCut = 9e3f;
         hiCut = 10e3f;
-        sampleRate = 44.1e3f;
+        sampleRate = (float)MainActivity.AUDIO_SAMPLING_RATE;//44.1e3f;
 
         updatePars();
 
