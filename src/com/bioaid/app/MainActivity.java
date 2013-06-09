@@ -11,17 +11,14 @@ import android.media.AudioManager;
 import android.media.AudioRecord;
 import android.media.AudioTrack;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.View;
 import android.widget.SeekBar;
-import android.widget.SeekBar.OnSeekBarChangeListener;
 
 public class MainActivity extends Activity {
     private static final int AUDIO_CHANNEL_CONFIG = 2;
     private static final int AUDIO_MODE = AudioTrack.MODE_STREAM;
-    private static final int AUDIO_SAMPLING_RATE = 8000; //44100;
+    private static final int AUDIO_SAMPLING_RATE = 8000; //44100; //8000;
     private static final int AUDIO_ENCODING = AudioFormat.ENCODING_PCM_16BIT;
     // Effective time length of buffer
     private static final int AUDIO_BUFFER_SIZE = AudioTrack.getMinBufferSize(AUDIO_SAMPLING_RATE, 
@@ -124,7 +121,7 @@ public class MainActivity extends Activity {
                         } else {
                             // Sine wave
                             int sampleRate = AUDIO_SAMPLING_RATE;
-                            int freqOfTone = 1000;
+                            int freqOfTone = 500;
                             double angle = 0;
                             double increment = (2 * Math.PI * freqOfTone / sampleRate); // angular increment 
     

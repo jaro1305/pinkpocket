@@ -37,7 +37,7 @@ public class MOCsim extends AlgoProcessor {
         shared_pars_ref = _shared_pars;
         circBuff_ptr = new CircularBuffer<Float>(441);
         index = _index;
-        sampleRate = 44100.0f;
+        sampleRate = 8000.0f; // 44100.0f;
         tc = 0.050f;
         latency = 0.010f;
         factor = 0.5f;
