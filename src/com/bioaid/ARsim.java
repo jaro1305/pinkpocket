@@ -1,6 +1,7 @@
 package com.bioaid;
 
 import android.util.FloatMath;
+import com.bioaid.app.MainActivity;
 
 import static java.lang.Math.floor;
 import static java.lang.Math.max;
@@ -22,8 +23,8 @@ public class ARsim extends AlgoProcessor {
     public ARsim(ParameterContextModel unique_pars, ParameterContextModel shared_pars) {
         unique_pars_ref = unique_pars;
         shared_pars_ref = shared_pars;
-        circBuff_ptr = new CircularBuffer(441);
-        sampleRate = 44100.0f;
+        circBuff_ptr = new CircularBuffer(MainActivity.AUDIO_SAMPLING_RATE/100);//new CircularBuffer(441);
+        sampleRate = (float) MainActivity.AUDIO_SAMPLING_RATE;//44100.0f;
         tc = 0.005f;
         latency = 0.010f;
         thresh_pa = 2.f;

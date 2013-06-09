@@ -18,7 +18,7 @@ import android.widget.SeekBar;
 public class MainActivity extends Activity {
     private static final int AUDIO_CHANNEL_CONFIG = 2;
     private static final int AUDIO_MODE = AudioTrack.MODE_STREAM;
-    private static final int AUDIO_SAMPLING_RATE = 8000; //44100; //8000;
+    public static final int AUDIO_SAMPLING_RATE = 8000; //44100;
     private static final int AUDIO_ENCODING = AudioFormat.ENCODING_PCM_16BIT;
     // Effective time length of buffer
     private static final int AUDIO_BUFFER_SIZE = AudioTrack.getMinBufferSize(AUDIO_SAMPLING_RATE, 

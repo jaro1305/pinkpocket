@@ -1,5 +1,7 @@
 package com.bioaid;
 
+import com.bioaid.app.MainActivity;
+
 /**
  * Created by jaro on 6/8/13.
  */
@@ -35,9 +37,9 @@ public class MOCsim extends AlgoProcessor {
 
     MOCsim(ParameterContextModel _shared_pars, int _index) {
         shared_pars_ref = _shared_pars;
-        circBuff_ptr = new CircularBuffer<Float>(441);
+        circBuff_ptr = new CircularBuffer<Float>(MainActivity.AUDIO_SAMPLING_RATE/100);//new CircularBuffer<Float>(441);
         index = _index;
-        sampleRate = 8000.0f; // 44100.0f;
+        sampleRate = (float) MainActivity.AUDIO_SAMPLING_RATE;//44100.0f;
         tc = 0.050f;
         latency = 0.010f;
         factor = 0.5f;
@@ -102,12 +104,12 @@ public class MOCsim extends AlgoProcessor {
                 //calculateMOCresponse(utils::pa2dbspl(stereoAccumulator/2.f));
             } else {
                 //stereoAccumulator = utils::pa2dbspl(dataSample);
-                stereoAccumulator = (float)Math.abs(dataSample);
+                stereoAccumulator = Math.abs(dataSample);
             }
             isSample2of2 = !isSample2of2;
         } else {
             //calculateMOCresponse(utils::pa2dbspl(dataSample));
-            calculateMOCresponse((float)Math.abs(dataSample));
+            calculateMOCresponse(Math.abs(dataSample));
         }
     }
 }

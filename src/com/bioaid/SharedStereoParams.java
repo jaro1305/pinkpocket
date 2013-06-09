@@ -1,5 +1,7 @@
 package com.bioaid;
 
+import com.bioaid.app.MainActivity;
+
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -19,7 +21,7 @@ public class SharedStereoParams extends ParameterContextModel {
 
     @Override
     void populateDefaultPars() {
-        paramMap.put("SampleRate", 44100.f);
+        paramMap.put("SampleRate", (float)MainActivity.AUDIO_SAMPLING_RATE);//44100.f);
         paramMap.put("IsStereo", 0.0f);
         paramMap.put("NumBands", 6.f);
         for (int nn = 0; nn < MAX_NUM_BANDS_EVER; ++nn) {

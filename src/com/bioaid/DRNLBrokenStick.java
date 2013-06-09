@@ -40,8 +40,15 @@ public class DRNLBrokenStick extends AlgoProcessor {
     float process(float sigIn) {
         float abs_x = Math.abs(sigIn);
         if (abs_x > cmpThreshOUT)
-            return (float)(Math.signum(sigIn) * DRNLb * Math.pow(abs_x, DRNLc));
+            return (float)(copysign(sigIn) * DRNLb * Math.pow(abs_x, DRNLc));
         else
             return sigIn;
     }
-};
+
+    float copysign(float sign) {
+        if (sign > 0)
+            return 1;
+        else
+            return -1;
+    }
+}
