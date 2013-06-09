@@ -1,5 +1,7 @@
 package com.bioaid;
 
+import android.util.Log;
+
 /**
  * Created by jaro on 6/8/13.
  */
@@ -43,12 +45,10 @@ public class AidStereoChannelManager extends AlgoProcessor {
         double process (double input){
             double tmp = inputGain * input; //Apply the input gain
             tmp = aRsim.process(tmp); // Apply any AR compression
-            System.out.println("aRsim = " + tmp);
             tmp = fBank.process(tmp); // Do sub-band processing
-            System.out.println("fBank = " + tmp);
-
-            if (aRsim.getThresh_pa() < 1000.f) //ONly bother pumping samples if AR threshold is less than about 150 dB
+            if (aRsim.getThresh_pa() < 1000.f) { //ONly bother pumping samples if AR threshold is less than about 150 dB
                 aRsim.pumpSample(tmp); // Update the AR processor with current broadband output level
+            }
             return tmp * outputGain; // Apply output gain
         }
     }
