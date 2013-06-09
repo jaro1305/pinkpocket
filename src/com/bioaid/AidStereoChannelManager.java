@@ -1,5 +1,7 @@
 package com.bioaid;
 
+import android.util.Log;
+
 /**
  * Created by jaro on 6/8/13.
  */

@@ -46,7 +46,7 @@ public class BioAidFilterService {
         } else {
             // Just copy the array, for testing
             for(int i = 0; i < leftChannel.length; i++) {
-                out2d[0][i] = leftChannel[i];
+                out2d[0][i] = leftChannel[i] / Short.MAX_VALUE;
             }
         }
         return out2d[0];

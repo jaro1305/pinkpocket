@@ -2,12 +2,12 @@
 <resources>
     <public type="drawable" name="ic_launcher" id="0x7f020002" />
     <public type="drawable" name="background" id="0x7f020000" />
-    <public type="drawable" name="helpicon" id="0x7f020001" />
+    <public type="drawable" name="helpbutton" id="0x7f020001" />
     <public type="drawable" name="offbutton" id="0x7f020003" />
     <public type="drawable" name="onbutton" id="0x7f020004" />
     <public type="drawable" name="seekbar" id="0x7f020005" />
-    <public type="drawable" name="settingsicon" id="0x7f020006" />
-    <public type="drawable" name="volumesliderback" id="0x7f020007" />
+    <public type="drawable" name="settingsbutton" id="0x7f020006" />
+    <public type="drawable" name="volumeslider" id="0x7f020007" />
     <public type="drawable" name="volumesliderfront" id="0x7f020008" />
     <public type="layout" name="activity_main" id="0x7f030000" />
     <public type="dimen" name="activity_horizontal_margin" id="0x7f040000" />

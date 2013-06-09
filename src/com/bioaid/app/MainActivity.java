@@ -11,6 +11,7 @@ import android.media.AudioManager;
 import android.media.AudioRecord;
 import android.media.AudioTrack;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
@@ -19,10 +20,13 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 
 public class MainActivity extends Activity {
     private static final int AUDIO_CHANNEL_CONFIG = 2;
-    private static final int AUDIO_SAMPLING_RATE = 44100;
+    private static final int AUDIO_MODE = AudioTrack.MODE_STREAM;
+    private static final int AUDIO_SAMPLING_RATE = 8000; //44100;
+    private static final int AUDIO_ENCODING = AudioFormat.ENCODING_PCM_16BIT;
+    // Effective time length of buffer
     private static final int AUDIO_BUFFER_SIZE = AudioTrack.getMinBufferSize(AUDIO_SAMPLING_RATE, 
             AUDIO_CHANNEL_CONFIG, 
-            AudioFormat.ENCODING_PCM_16BIT);
+            AudioFormat.ENCODING_PCM_16BIT); 
     private AudioManager audioManager;
     private AudioTrack audioPlayer;
     private AudioRecord audioRecorder;
@@ -31,28 +35,35 @@ public class MainActivity extends Activity {
     private boolean isQuitting;
     private boolean started = false;
     private Streamer streamer;
+    private HeadsetStateReceiver hsr;
 
     private void startPlaying() {
         audioPlayer = new AudioTrack(3, 
-                44100, 
-                2, 
-                2, 
+                AUDIO_SAMPLING_RATE, 
+                AUDIO_CHANNEL_CONFIG, 
+                AUDIO_ENCODING, 
                 AUDIO_BUFFER_SIZE, 
-                1);
+                AUDIO_MODE);
         audioPlayer.play();
     }
 
     private void startRecording() {
         audioRecorder = new AudioRecord(1, 
-                44100, 
-                2, 
-                2, 
+                AUDIO_SAMPLING_RATE, 
+                AUDIO_CHANNEL_CONFIG,
+                AUDIO_ENCODING, 
                 AUDIO_BUFFER_SIZE);
         audioRecorder.startRecording();
         isGoing = true;
         isQuitting = false;
         streamer = new Streamer();
         streamer.start();
+    }
+    
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(hsr);
     }
 
     protected void onCreate(Bundle paramBundle) {
@@ -66,7 +77,8 @@ public class MainActivity extends Activity {
         
         // Set up the headset monitor
         IntentFilter localIntentFilter = new IntentFilter("android.intent.action.HEADSET_PLUG");
-        registerReceiver(new HeadsetStateReceiver(this), localIntentFilter);
+        hsr = new HeadsetStateReceiver(this);
+        registerReceiver(hsr, localIntentFilter);
         
         // Set up the volume slider
         SeekBar localSeekBar = (SeekBar) findViewById(R.id.seekBar1);
@@ -102,17 +114,36 @@ public class MainActivity extends Activity {
                         // Normalise the input to the [-1,1] range
                         float[] input = new float[AUDIO_BUFFER_SIZE / 2]; // assume 2 bytes per sample
                         ByteBuffer bb = ByteBuffer.wrap(data);
-                        for(int j = 0; j < AUDIO_BUFFER_SIZE; j += 2) {
-                            input[j / 2] = ((float)bb.getShort()) / ((float)Short.MAX_VALUE);
+                        
+                        if(true) {
+                            // Real input
+                            for(int j = 0; j < AUDIO_BUFFER_SIZE; j += 2) {
+                                input[j / 2] = bb.getShort(); //((double)bb.getShort()) / ((double)Short.MAX_VALUE);
+                                //input[j / 2] = Math.log10(Math.abs((double)bb.getShort()) / ((double)Short.MAX_VALUE));
+                            }
+                        } else {
+                            // Sine wave
+                            int sampleRate = AUDIO_SAMPLING_RATE;
+                            int freqOfTone = 1000;
+                            double angle = 0;
+                            double increment = (2 * Math.PI * freqOfTone / sampleRate); // angular increment 
+    
+                            for (int j = 0; j < (AUDIO_BUFFER_SIZE) / 2; j++) {
+                                input[j] = (short) (Math.sin(angle) * Short.MAX_VALUE);
+                                angle += increment;
+                            }
                         }
                         
                         // Process the input
+                        //long time = System.nanoTime();
                         float[] output = bafs.processBlock(input);
+                        //Log.e("MainActivity", "time:" + (System.nanoTime() - time));
                         
                         // Scale and then write the output
                         byte[] outputBytes = new byte[AUDIO_BUFFER_SIZE];
                         ByteBuffer bb2 = ByteBuffer.wrap(outputBytes);
                         for(int j = 0; j < (AUDIO_BUFFER_SIZE / 2); j ++) {
+                            //short value = (short)output[j];
                             short value = (short)(output[j] * Short.MAX_VALUE);
                             bb2.putShort(value);
                         }
@@ -177,9 +208,6 @@ public class MainActivity extends Activity {
         audioRecorder = null;
     }
     
-    // Old constants
-    private static final int AUDIO_ENCODING = 2;
-    private static final int AUDIO_MODE = 1;
     private static final int AUDIO_SOURCE = 1;
     private static final int AUDIO_STREAM_TYPE = 3;
 }
