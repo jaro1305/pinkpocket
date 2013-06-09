@@ -1,7 +1,8 @@
-package com.bioaid;
+package com.soundbyte;
 
 import android.util.FloatMath;
-import com.bioaid.app.MainActivity;
+
+import com.soundbyte.app.MainActivity;
 
 import static java.lang.Math.floor;
 import static java.lang.Math.max;

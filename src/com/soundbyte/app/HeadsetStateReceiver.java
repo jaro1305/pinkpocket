@@ -1,4 +1,4 @@
-package com.bioaid.app;
+package com.soundbyte.app;
 
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;

@@ -1,4 +1,4 @@
-package com.bioaid;
+package com.soundbyte;
 
 import static java.lang.Math.cos;
 import static java.lang.Math.pow;

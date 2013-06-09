@@ -1,6 +1,6 @@
-package com.bioaid;
+package com.soundbyte;
 
-import com.bioaid.app.MainActivity;
+import com.soundbyte.app.MainActivity;
 
 /**
  * Created by jaro on 6/8/13.

@@ -1,6 +1,6 @@
-package com.bioaid;
+package com.soundbyte;
 
-import com.bioaid.app.MainActivity;
+import com.soundbyte.app.MainActivity;
 
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;

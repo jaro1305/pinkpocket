@@ -1,4 +1,4 @@
-package com.bioaid;
+package com.soundbyte;
 
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;

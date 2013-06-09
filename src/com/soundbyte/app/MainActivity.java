@@ -1,10 +1,11 @@
-package com.bioaid.app;
+package com.soundbyte.app;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
-import com.bioaid.BioAidFilterService;
-import com.bioaid.app.R;
+import com.soundbyte.app.R;
+import com.soundbyte.BioAidFilterService;
+
 import android.app.Activity;
 import android.content.IntentFilter;
 import android.media.AudioFormat;
