@@ -19,7 +19,7 @@
             android:id="@+id/seekBar1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:contentDescription="Volume slider"
+            android:contentDescription="@string/volumeslider_description"
             android:progressDrawable="@drawable/seekbar"
             android:thumb="@drawable/volumesliderfront" />
 
@@ -28,7 +28,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:text="Volume"
+            android:text="@string/volumeslider_textlabel"
             android:textAppearance="?android:textAppearanceMedium"
             android:textColor="#ffffffff"
             android:textStyle="bold" />
@@ -97,8 +97,7 @@
         
         <Space
             android:layout_width="20.0dip"
-            android:layout_height="20.0dip"
-            android:layout_centerHorizontal="true" />
+            android:layout_height="20.0dip" />
 
         <SeekBar
             android:id="@+id/seekBar2"
@@ -120,15 +119,15 @@
         
         <Space
             android:layout_width="20.0dip"
-            android:layout_height="20.0dip"
-            android:layout_centerHorizontal="true" />
+            android:layout_height="20.0dip" />
 
         <GridLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/levelbg"
             android:columnCount="1"
-            android:rowCount="3" >
+            android:rowCount="3"
+            android:contentDescription="Volume levels" >
             <LinearLayout
                 android:orientation="horizontal"
                 android:layout_width="match_parent"
@@ -274,9 +273,6 @@
                     android:layout_height="27dp"
                     android:src="@drawable/redlevel" />
             </LinearLayout>
-
         </GridLayout>
-        
     </LinearLayout>
-
 </RelativeLayout>

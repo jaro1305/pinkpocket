@@ -21,29 +21,34 @@ import android.widget.ImageView;
 import android.widget.SeekBar;
 
 public class MainActivity extends Activity {
+    // Constants
     private static final int AUDIO_CHANNEL_CONFIG = 2;
+    private static final int AUDIO_SOURCE = 1;
+    private static final int AUDIO_STREAM_TYPE = AudioManager.STREAM_MUSIC;
     private static final int AUDIO_MODE = AudioTrack.MODE_STREAM;
     public static final int AUDIO_SAMPLING_RATE = 8000; //44100;
     private static final int AUDIO_ENCODING = AudioFormat.ENCODING_PCM_16BIT;
-    // Effective time length of buffer
+    private static final int lastN = 10; // number of samples for getting the volume
     private static final int AUDIO_BUFFER_SIZE = AudioTrack.getMinBufferSize(AUDIO_SAMPLING_RATE, 
             AUDIO_CHANNEL_CONFIG, 
-            AudioFormat.ENCODING_PCM_16BIT); 
+            AudioFormat.ENCODING_PCM_16BIT); // Effective time length of buffer
+    private static final short BASE_AMPLITUDE = 15000;
+    
+    // Variables
     private AudioManager audioManager;
     private AudioTrack audioPlayer;
     private AudioRecord audioRecorder;
     private byte[] data;
     private boolean isGoing;
     private boolean isQuitting;
-    private boolean started = false;
+    private boolean started;
     private Streamer streamer;
     private HeadsetStateReceiver hsr;
     private ArrayList<Integer> inLevels;
     private ArrayList<Integer> outLevels;
     private Handler equaliserHandler;
-    private static final int lastN = 10;
-    private double oldInLevel = 1;
-    private double oldOutLevel = 1;
+    private double oldInLevel;
+    private double oldOutLevel;
 
     private void startPlaying() {
         audioPlayer = new AudioTrack(3, 
@@ -79,9 +84,15 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         
         // Initialise variables
+        oldInLevel = 1; // Start at 100%
+        oldOutLevel = 1; // Start at 100%
+        started = false;
         data = new byte[AUDIO_BUFFER_SIZE];
         isGoing = false;
         isQuitting = false;
+        
+        // Populate equaliser view lists, so they can be updated when the
+        // volume changes
         inLevels = new ArrayList<Integer>();
         outLevels = new ArrayList<Integer>();
         inLevels.add(R.id.level1a);
@@ -119,15 +130,17 @@ public class MainActivity extends Activity {
         // Set up the volume slider
         SeekBar localSeekBar = (SeekBar) findViewById(R.id.seekBar1);
         audioManager = ((AudioManager) getSystemService("audio"));
-        int i = audioManager.getStreamMaxVolume(3);
-        int j = audioManager.getStreamVolume(3);
-        localSeekBar.setMax(i);
-        localSeekBar.setProgress(j);
+        int maxVolume = audioManager.getStreamMaxVolume(AUDIO_STREAM_TYPE);
+        int currentVolume = audioManager.getStreamVolume(AUDIO_STREAM_TYPE);
+        localSeekBar.setMax(maxVolume);
+        localSeekBar.setProgress(currentVolume);
         localSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            public void onProgressChanged(SeekBar paramAnonymousSeekBar,
+            public void onProgressChanged(SeekBar seekBar,
                     int paramAnonymousInt, 
                     boolean paramAnonymousBoolean) {
-                audioManager.setStreamVolume(3, paramAnonymousInt, 21);
+                audioManager.setStreamVolume(AUDIO_STREAM_TYPE, 
+                        paramAnonymousInt, 
+                        21);
             }
 
             public void onStartTrackingTouch(SeekBar paramAnonymousSeekBar) {
@@ -142,9 +155,9 @@ public class MainActivity extends Activity {
             @Override
             public void handleMessage(Message msg) {
                 Bundle bundle = msg.getData();
-                long totalIn = bundle.getLong("in");
-                long totalOut = bundle.getLong("out");
-                updateEqualiser(totalIn, totalOut);
+                long inAmplitude = bundle.getLong("in");
+                long outAmplitude = bundle.getLong("out");
+                updateEqualiser(inAmplitude, outAmplitude);
             }
         };
     }
@@ -154,22 +167,22 @@ public class MainActivity extends Activity {
             BioAidFilterService bafs = new BioAidFilterService();
             while (!isQuitting) {
                 if (isGoing) {
-                    int i = audioRecorder.read(data, 
+                    int sizeInBytes = audioRecorder.read(data, 
                             0,
                             MainActivity.AUDIO_BUFFER_SIZE);
-                    if ((audioPlayer.getPlayState() == 3) && (i != -3)) {
+                    if (audioPlayer != null && (audioPlayer.getPlayState() == 3) && (sizeInBytes > 0)) {
                         // Normalise the input to the [-1,1] range
                         float[] input = new float[AUDIO_BUFFER_SIZE / 2]; // assume 2 bytes per sample
                         ByteBuffer bb = ByteBuffer.wrap(data);
                         
-                        long totalIn = 0;
+                        long inAmplitude = 0;
                         if(true) {
                             // Real input
                             for(int j = 0; j < (AUDIO_BUFFER_SIZE / 2); j++) {
                                 input[j] = Float.valueOf(bb.getShort()); //((double)bb.getShort()) / ((double)Short.MAX_VALUE);
                                 //input[j / 2] = Math.log10(Math.abs((double)bb.getShort()) / ((double)Short.MAX_VALUE));
                                 if(j >= ((AUDIO_BUFFER_SIZE / 2) - lastN)) {
-                                    totalIn += (long) Math.abs(input[j]);
+                                    inAmplitude += (long) Math.abs(input[j]);
                                 }
                             }
                         } else {
@@ -183,11 +196,11 @@ public class MainActivity extends Activity {
                                 input[j] = (short) (Math.sin(angle) * Short.MAX_VALUE);
                                 angle += increment;
                                 if(j >= ((AUDIO_BUFFER_SIZE / 2) - lastN)) {
-                                    totalIn += (long) Math.abs(input[j]);
+                                    inAmplitude += (long) Math.abs(input[j]);
                                 }
                             }
                         }
-                        totalIn /= lastN;
+                        inAmplitude /= lastN;
                         
                         // Process the input
                         //long time = System.nanoTime();
@@ -196,24 +209,24 @@ public class MainActivity extends Activity {
                         
                         // Scale and then write the output
                         byte[] outputBytes = new byte[AUDIO_BUFFER_SIZE];
-                        long totalOut = 0;
+                        long outAmpltitude = 0;
                         ByteBuffer bb2 = ByteBuffer.wrap(outputBytes);
                         for(int j = 0; j < (AUDIO_BUFFER_SIZE / 2); j ++) {
                             float value = output[j];
                             //short value = (short)(output[j] * Short.MAX_VALUE);
                             bb2.putShort((short)value);
                             if(j >= ((AUDIO_BUFFER_SIZE / 2) - lastN)) {
-                                totalOut += Math.abs((short)value);
+                                outAmpltitude += Math.abs((short)value);
                             }
                         }
-                        totalOut /= lastN;
-                        audioPlayer.write(outputBytes, 0, i);
+                        outAmpltitude /= lastN;
+                        audioPlayer.write(outputBytes, 0, sizeInBytes);
                         
                         // Update the equalisers
                         Message msg = new Message();
                         Bundle bundle = new Bundle();
-                        bundle.putLong("in", totalIn);
-                        bundle.putLong("out", totalOut);
+                        bundle.putLong("in", inAmplitude);
+                        bundle.putLong("out", outAmpltitude);
                         msg.setData(bundle);
                         equaliserHandler.sendMessage(msg);
                     }
@@ -222,36 +235,47 @@ public class MainActivity extends Activity {
         }
     }
     
-    public void updateEqualiser(long totalIn, long totalOut) {
+    public void updateEqualiser(long inAmplitude, long outAmplitude) {
         int maxLevels = 13;
+        
+        // Compute effective decibels from amplitudes
+        double inLevel = Math.max(1, (double)(inAmplitude - BASE_AMPLITUDE)); // 0 as first param would give -inf result in log
+        inLevel = Math.log10(inLevel);
+        inLevel /= Math.log10(Short.MAX_VALUE - BASE_AMPLITUDE);
+        double outLevel = Math.max(1, (double)(outAmplitude - BASE_AMPLITUDE));
+        outLevel = Math.log10(outLevel);
+        outLevel /= Math.log10(Short.MAX_VALUE - BASE_AMPLITUDE);
+        
+        // Get the updated IN decibels and OUT decibels, using smoothing
+        double inCombination = (0.125 * inLevel) + (0.875 * oldInLevel); // smoothing
+        double outCombination = (0.125 * outLevel) + (0.875 * oldOutLevel); // smoothing
+        
+        // Set the equaliser
         for(int k = 0; k < maxLevels; k++) {
-            short baseLevel = 15000;
-            
-            // use log for db
-            double percentage = ((double)k) / ((double)(maxLevels - 1));
-            double inLevel = Math.max(1, (double)(totalIn - baseLevel)); // 0 as first param would give -inf result
-            inLevel = Math.log10(inLevel);
-            inLevel /= Math.log10(Short.MAX_VALUE - baseLevel);
-            double outLevel = Math.max(1, (double)(totalOut - baseLevel));
-            outLevel = Math.log10(outLevel);
-            outLevel /= Math.log10(Short.MAX_VALUE - baseLevel);
+            // Get the equaliser views
             ImageView inView = (ImageView)findViewById(inLevels.get(k));
             ImageView outView = (ImageView)findViewById(outLevels.get(k));
-            double combination = (0.125 * inLevel) + (0.875 * oldInLevel); // smoothing
-            if((k == 0) || (combination > percentage)) {
+            
+            // Get the current percentage
+            double percentage = ((double)k) / ((double)(maxLevels - 1));
+            
+            // Set the views as visible or not, depending on whether the
+            // percenatage was exceeded
+            if((k == 0) || (inCombination > percentage)) {
                 inView.setVisibility(View.VISIBLE);
             } else {
                 inView.setVisibility(View.INVISIBLE);
             }
-            oldInLevel = combination;
-            combination = (0.125 * outLevel) + (0.875 * oldOutLevel); // smoothing
-            if((k == 0) || (combination > percentage)) {
+            if((k == 0) || (outCombination > percentage)) {
                 outView.setVisibility(View.VISIBLE);
             } else {
                 outView.setVisibility(View.INVISIBLE);
             }
-            oldOutLevel = combination;
         }
+        
+        // Update the IN and OUT decibels
+        oldInLevel = inCombination;
+        oldOutLevel = outCombination;
     }
     
     public void onActionButtonClicked(View paramView) {
@@ -280,10 +304,16 @@ public class MainActivity extends Activity {
     public void onSettingsButtonClicked(View paramView) {
     }
 
+    /**
+     * Resume processing when the headphones are put in
+     */
     public void resume() {
         isGoing = true;
     }
 
+    /**
+     * Pause processing while the headphones are out
+     */
     public void suspend() {
         isGoing = false;
     }
@@ -307,7 +337,4 @@ public class MainActivity extends Activity {
         audioRecorder.release();
         audioRecorder = null;
     }
-    
-    private static final int AUDIO_SOURCE = 1;
-    private static final int AUDIO_STREAM_TYPE = 3;
 }
