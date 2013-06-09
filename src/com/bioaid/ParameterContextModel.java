@@ -29,11 +29,11 @@ public abstract class ParameterContextModel {
         return slot;
     }
 
-    double getParam(String key) {
-        return getParam(key, 0D); // was null in C++
+    float getParam(String key) {
+        return getParam(key, 0F); // was null in C++
     }
 
-    double getParam(String key, double defaultVal) {
+    float getParam(String key, float defaultVal) {
         Float param = paramMap.get(key);
         return param == null ? defaultVal : param;
     }

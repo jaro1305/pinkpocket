@@ -6,21 +6,21 @@ package com.bioaid;
 public class MOCsim extends AlgoProcessor {
     ParameterContextModel shared_pars_ref;
 
-    CircularBuffer<Double> circBuff_ptr;
+    CircularBuffer<Float> circBuff_ptr;
 
     int index; //Lexical-cast this to get parameters
-    double sampleRate, tc, latency, factor, thresh_dB, thresh_pa;
+    float sampleRate, tc, latency, factor, thresh_dB, thresh_pa;
     boolean isStereo;
 
     boolean isSample2of2;
-    double stereoAccumulator;
+    float stereoAccumulator;
 
     OnePoleFilter MOCfilt = new OnePoleFilter();
 
-    void calculateMOCresponse(double meanMOCpa) {
+    void calculateMOCresponse(float meanMOCpa) {
         // THIS IS THE OLD INEFFICIENT VERSION REQUIRING LOTS OF LIN<->LOG DOMAIN CONVERSION
         // HOWEVER, IT IS NECESSARY BECAUSE OF THE FILTER POSITION
-        double meanMOCdB = Utils.pa2dbspl (meanMOCpa);
+        float meanMOCdB = Utils.pa2dbspl(meanMOCpa);
         meanMOCdB = Math.max(meanMOCdB - thresh_dB, 0.0f) * factor;
         meanMOCdB = MOCfilt.process(meanMOCdB);
         circBuff_ptr.push_back(Utils.db2lin(-meanMOCdB));
@@ -35,12 +35,12 @@ public class MOCsim extends AlgoProcessor {
 
     MOCsim(ParameterContextModel _shared_pars, int _index) {
         shared_pars_ref = _shared_pars;
-        circBuff_ptr = new CircularBuffer<Double>(441);
+        circBuff_ptr = new CircularBuffer<Float>(441);
         index = _index;
         sampleRate = 44100.0f;
         tc = 0.050f;
-        latency = 0.010;
-        factor = 0.5;
+        latency = 0.010f;
+        factor = 0.5f;
         thresh_dB = 25.0f;
         thresh_pa = Utils.dbspl2pa(thresh_dB);
         isStereo = false;
@@ -66,20 +66,20 @@ public class MOCsim extends AlgoProcessor {
         thresh_dB = shared_pars_ref.getParam("Band_" + index + "_MOCthreshold_dBspl", thresh_dB);
         thresh_pa = Utils.dbspl2pa(thresh_dB);
 
-        MOCfilt.initOnePoleCoeffs(tc, 1.D / sampleRate);
+        MOCfilt.initOnePoleCoeffs(tc, 1.f / sampleRate);
 
-        int bufferSamples = (int)(1 + Math.floor(latency * sampleRate)); // Add 1 to prevent a buffersize of zero
+        int bufferSamples = (int) (1 + Math.floor(latency * sampleRate)); // Add 1 to prevent a buffersize of zero
         circBuff_ptr.set_capacity(bufferSamples);
         for (int nn = 0; nn < bufferSamples; ++nn) {
-            circBuff_ptr.push_back(1.0D); // populate with ones
+            circBuff_ptr.push_back(1.0f); // populate with ones
         }
     }
 
-    double process(double sigIn) {
+    float process(float sigIn) {
         return sigIn * circBuff_ptr.front();
     }
 
-    void pumpSample(double dataSample) {
+    void pumpSample(float dataSample) {
         //% Before calculating attenuation for MOC loop, add a tiny DC
         //% offset to the incoming sample. This is so that Pa values of
         //% zero do not cause a value of -1000 dB SPL to be fed to the
@@ -102,12 +102,12 @@ public class MOCsim extends AlgoProcessor {
                 //calculateMOCresponse(utils::pa2dbspl(stereoAccumulator/2.f));
             } else {
                 //stereoAccumulator = utils::pa2dbspl(dataSample);
-                stereoAccumulator = Math.abs(dataSample);
+                stereoAccumulator = (float)Math.abs(dataSample);
             }
             isSample2of2 = !isSample2of2;
         } else {
             //calculateMOCresponse(utils::pa2dbspl(dataSample));
-            calculateMOCresponse(Math.abs(dataSample));
+            calculateMOCresponse((float)Math.abs(dataSample));
         }
     }
 }

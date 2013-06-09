@@ -38,10 +38,10 @@ public class BioAidFilterService {
         sharedPars.setParam("InputGain_dB", preferences.getInt(INPUT_GAIN_DB, 4));
     }
 
-    public double[] processBlock(double[] leftChannel) {
-        double[][] in2d = new double[][]{leftChannel};
-        double[][] out2d = new double[][]{new double[leftChannel.length]};
-        if(false) {
+    public float[] processBlock(float[] leftChannel) {
+        float[][] in2d = new float[][]{leftChannel};
+        float[][] out2d = new float[][]{new float[leftChannel.length]};
+        if(true) {
             myAlgo.processSampleBlock(in2d, 1, out2d, 1, leftChannel.length);
         } else {
             // Just copy the array, for testing
@@ -50,5 +50,15 @@ public class BioAidFilterService {
             }
         }
         return out2d[0];
+    }
+
+    public static void main(String[] args) {
+
+        byte b1 = (byte) 0;
+        byte b2 = (byte) 0;
+        System.out.println(b1 + " " + b2);
+        int[] arr = new int[]{b1, b2};
+        double scaled = ((((arr[0] & 0xff) << 8) + arr[1] & 0xff) / (Short.MAX_VALUE * 2D)) * 2D - 1;
+        System.out.println(scaled);
     }
 }

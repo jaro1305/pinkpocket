@@ -14,22 +14,22 @@ public class Main {
 
         // the () at the end = zero init like calloc
         // * this was wrapped in boost::scoped_array
-        double[] lDataIn = new double[numSamples];
-        double[] rDataIn = new double[numSamples];
-        double[] lDataOut = new double[numSamples];
-        double[] rDataOut = new double[numSamples];
+        float[] lDataIn =  new float[numSamples];
+        float[] rDataIn =  new float[numSamples];
+        float[] lDataOut = new float[numSamples];
+        float[] rDataOut = new float[numSamples];
 
         lDataIn[0] = rDataIn[0] = 1.0f; // make impulse
         //std::generate_n(&lDataIn[0], numSamples, gen_rand(10.f,11.f));
 
         // Make the data look like 2D C-style arrays (the process mathod requires data in this format)
         // ..this fits with other audio APIs like VST, even if it is a bit of an eye-bleeder
-        double[] plDataIn = lDataIn;
-        double[] prDataIn = rDataIn;
-        double[] plDataOut = lDataOut;
-        double[] prDataOut = rDataOut;
-        double in2D[][] = new double[][]{plDataIn, prDataIn};
-        double out2D[][] = new double[][]{plDataOut, prDataOut};
+        float[] plDataIn = lDataIn;
+        float[] prDataIn = rDataIn;
+        float[] plDataOut = lDataOut;
+        float[] prDataOut = rDataOut;
+        float in2D[][] = new float[][]{plDataIn, prDataIn};
+        float out2D[][] = new float[][]{plDataOut, prDataOut};
 
         showData(lDataIn, rDataIn, numSamples);
 
@@ -95,25 +95,25 @@ public class Main {
 
     }
 
-    private static void generateSin(double[] v, int numSamples) {
-        for (int i=0; i < numSamples; i++) {
-            v[i] = Math.sin(0.2D * i);
+    private static void generateSin(float[] v, int numSamples) {
+        for (int i = 0; i < numSamples; i++) {
+            v[i] = (float)Math.sin(0.2D * i);
         }
     }
 
     private static void generate_n(double[] v, int numSamples, float min, float max) {
-        for (int i=0; i < numSamples; i++) {
+        for (int i = 0; i < numSamples; i++) {
             double rnd = (Math.random() * (Math.abs(min) + Math.abs(max))) - Math.abs(min);
             v[i] = rnd;
         }
 
     }
 
-    static void showData(double[] L, double[] R, int numel) {
-        double totalL = 0;
-        double totalR = 0;
+    static void showData(float[] L, float[] R, int numel) {
+        float totalL = 0;
+        float totalR = 0;
         for (int nn = 0; nn < numel; ++nn) {
-            System.out.println( "L[" + nn + "]=" + L[nn] + "  ----   " + "R[" + nn + "]=" + R[nn]);
+            System.out.println("L[" + nn + "]=" + L[nn] + "  ----   " + "R[" + nn + "]=" + R[nn]);
             totalL += L[nn];
             totalR += R[nn];
         }

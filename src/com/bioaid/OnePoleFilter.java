@@ -4,10 +4,10 @@ package com.bioaid;
  * Created by jaro on 6/8/13.
  */
 public class OnePoleFilter {
-    public static final double FILTER_DENORMAL_PROTECTOR = 1e-20f;
-    private double a1, b0, m, dn;
+    public static final float FILTER_DENORMAL_PROTECTOR = 1e-20f;
+    private float a1, b0, m, dn;
 
-    void initOnePoleCoeffs(double tc, double dt) {
+    void initOnePoleCoeffs(float tc, float dt) {
         if ((tc / dt) < 44.0f) // just under 1ms for 44.1 kHz
             a1 = 0.0f;
         else
@@ -22,14 +22,14 @@ public class OnePoleFilter {
 
     //Just a utility method for processing a chunk of samples
     //Not used in BioAid
-    void process(double[] sigIn, double[] sigOut, int numel) {
+    void process(float[] sigIn, float[] sigOut, int numel) {
         for (int nn = 0; nn < numel; ++nn) {
             sigOut[nn] = process(sigIn[nn]);
         }
 
     }
 
-    double process(double sigIn) {
+    float process(float sigIn) {
         m = b0 * sigIn
                 - a1 * m
                 + dn; //build denormal protection right in
@@ -44,11 +44,11 @@ public class OnePoleFilter {
     ;
 
     //Accessor interface for external envelop follower class
-    double get_a1() {
+    float get_a1() {
         return a1;
     }
 
-    double get_b0(){
+    float get_b0() {
         return b0;
     }
 

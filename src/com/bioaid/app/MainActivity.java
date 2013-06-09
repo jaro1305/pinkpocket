@@ -112,13 +112,13 @@ public class MainActivity extends Activity {
                             MainActivity.AUDIO_BUFFER_SIZE);
                     if ((audioPlayer.getPlayState() == 3) && (i != -3)) {
                         // Normalise the input to the [-1,1] range
-                        double[] input = new double[AUDIO_BUFFER_SIZE / 2]; // assume 2 bytes per sample
+                        float[] input = new float[AUDIO_BUFFER_SIZE / 2]; // assume 2 bytes per sample
                         ByteBuffer bb = ByteBuffer.wrap(data);
                         
                         if(true) {
                             // Real input
                             for(int j = 0; j < AUDIO_BUFFER_SIZE; j += 2) {
-                                input[j / 2] = (double)bb.getShort(); //((double)bb.getShort()) / ((double)Short.MAX_VALUE);
+                                input[j / 2] = bb.getShort(); //((double)bb.getShort()) / ((double)Short.MAX_VALUE);
                                 //input[j / 2] = Math.log10(Math.abs((double)bb.getShort()) / ((double)Short.MAX_VALUE));
                             }
                         } else {
@@ -136,7 +136,7 @@ public class MainActivity extends Activity {
                         
                         // Process the input
                         //long time = System.nanoTime();
-                        double[] output = bafs.processBlock(input);
+                        float[] output = bafs.processBlock(input);
                         //Log.e("MainActivity", "time:" + (System.nanoTime() - time));
                         
                         // Scale and then write the output

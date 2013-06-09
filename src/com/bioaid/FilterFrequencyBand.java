@@ -13,19 +13,19 @@ public class FilterFrequencyBand extends AlgoProcessor {
 
     int index; //Lexical cast this to get parameters
 
-    double gain;
+    float gain;
 
-    double loCut, hiCut;
-    double sampleRate;
+    float loCut, hiCut;
+    float sampleRate;
 
     final ButterworthBpFilter inFilter = new ButterworthBpFilter();
     final ButterworthBpFilter outFilter = new ButterworthBpFilter();
 
     public void updatePars() {
         // Update filters if needed
-        double OLDloCut = loCut;
-        double OLDhiCut = hiCut;
-        double OLDsampleRate = sampleRate;
+        float OLDloCut = loCut;
+        float OLDhiCut = hiCut;
+        float OLDsampleRate = sampleRate;
 
         //Don't bother supplying default as function defaults to 0 which is fine for dB gain
         gain = Utils.db2lin(unique_pars_ref.getParam("Band_" + index + "_Gain_dB"));
@@ -67,8 +67,8 @@ public class FilterFrequencyBand extends AlgoProcessor {
     ;
 
 
-    double process(double inputSample) {
-        double tmp = inFilter.process(inputSample);
+    float process(float inputSample) {
+        float tmp = inFilter.process(inputSample);
 
         //Stuff between the filters!
         tmp = moc_ptr.process(tmp);

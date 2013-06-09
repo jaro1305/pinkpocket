@@ -1,5 +1,7 @@
 package com.bioaid;
 
+import android.util.FloatMath;
+
 import static java.lang.Math.floor;
 import static java.lang.Math.max;
 import static java.lang.Math.sqrt;
@@ -11,9 +13,9 @@ public class ARsim extends AlgoProcessor {
     ParameterContextModel unique_pars_ref;
     ParameterContextModel shared_pars_ref;
 
-    CircularBuffer<Double> circBuff_ptr;
+    CircularBuffer<Float> circBuff_ptr;
 
-    double sampleRate, tc, latency, thresh_pa;
+    float sampleRate, tc, latency, thresh_pa;
 
     final OnePoleFilter aRfilt = new OnePoleFilter();
 
@@ -45,26 +47,26 @@ public class ARsim extends AlgoProcessor {
         //TODO -> if statementes here
         aRfilt.initOnePoleCoeffs(tc, 1.f / sampleRate);
 
-        int bufferSamples = 1 + (int)floor(latency * sampleRate); // Add 1 to prevent a buffersize of zero
+        int bufferSamples = 1 + (int) floor(latency * sampleRate); // Add 1 to prevent a buffersize of zero
         circBuff_ptr.set_capacity(bufferSamples);
         for (int nn = 0; nn < bufferSamples; ++nn) {
-            circBuff_ptr.push_back(1.0D); // populate with ones
+            circBuff_ptr.push_back(1.0f); // populate with ones
         }
     }
 
 
-    double getThresh_pa() {
+    float getThresh_pa() {
         return thresh_pa;
     }
 
-    double process(double sigIn) {
+    float process(float sigIn) {
         return sigIn / circBuff_ptr.front();
     }
 
-    void pumpSample(double dataSample) {
-        double tmp = aRfilt.process(dataSample * dataSample); // Smooth power
-        tmp = sqrt(tmp) / thresh_pa; // RMS relative to threshold
-        tmp = max (tmp, 1.0f); // Stop AR giving gain
+    void pumpSample(float dataSample) {
+        float tmp = aRfilt.process(dataSample * dataSample); // Smooth power
+        tmp = FloatMath.sqrt(tmp) / thresh_pa; // RMS relative to threshold
+        tmp = max(tmp, 1.0f); // Stop AR giving gain
         circBuff_ptr.push_back(tmp);
     }
 
