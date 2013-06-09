@@ -165,7 +165,7 @@ public class MainActivity extends Activity {
                             for(int j = 0; j < AUDIO_BUFFER_SIZE; j += 2) {
                                 input[j / 2] = Float.valueOf(bb.getShort()); //((double)bb.getShort()) / ((double)Short.MAX_VALUE);
                                 //input[j / 2] = Math.log10(Math.abs((double)bb.getShort()) / ((double)Short.MAX_VALUE));
-                                totalIn = (long) Math.abs(input[j / 2]); // was += but this is not working well!
+                                totalIn = (long) Math.abs(input[j / 2]);
                             }
                         } else {
                             // Sine wave
@@ -177,7 +177,7 @@ public class MainActivity extends Activity {
                             for (int j = 0; j < (AUDIO_BUFFER_SIZE) / 2; j++) {
                                 input[j] = (short) (Math.sin(angle) * Short.MAX_VALUE);
                                 angle += increment;
-                                totalIn = (long) Math.abs(input[j]); // was +=, but not working well
+                                totalIn = (long) Math.abs(input[j]);
                             }
                         }
                         
@@ -194,7 +194,7 @@ public class MainActivity extends Activity {
                             float value = output[j];
                             //short value = (short)(output[j] * Short.MAX_VALUE);
                             bb2.putShort((short)value);
-                            totalOut = Math.abs((short)value); // was +=, but not working well
+                            totalOut = Math.abs((short)value);
                         }
                         audioPlayer.write(outputBytes, 0, i);
                         
@@ -215,14 +215,12 @@ public class MainActivity extends Activity {
         int maxLevels = 13;
         for(int k = 0; k < maxLevels; k++) {
             double percentage = ((double)k) / ((double)(maxLevels - 1));
-            double inLevel = ((double)totalIn) / ((double)(AUDIO_BUFFER_SIZE / 2));
+            double inLevel = ((double)totalIn);
             inLevel = Math.log10(inLevel); // use log for db
             inLevel /= 4.5154366811; // log10 of ((double)Short.MAX_VALUE);
-            double outLevel = ((double)totalOut) / ((double)(AUDIO_BUFFER_SIZE / 2));
+            double outLevel = ((double)totalOut);
             outLevel = Math.log10(outLevel);
             outLevel /= 4.5154366811; // log10 of ((double)Short.MAX_VALUE);
-            /*Log.e("BLAH", "1 : " + inLevel);
-            Log.e("BLAH", "2 : " + outLevel);*/
             ImageView inView = (ImageView)MainActivity.this.findViewById(inLevels.get(k));
             ImageView outView = (ImageView)MainActivity.this.findViewById(outLevels.get(k));
             if(inLevel > percentage) {
