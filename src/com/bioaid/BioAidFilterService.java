@@ -41,12 +41,12 @@ public class BioAidFilterService {
     public float[] processBlock(float[] leftChannel) {
         float[][] in2d = new float[][]{leftChannel};
         float[][] out2d = new float[][]{new float[leftChannel.length]};
-        if(true) {
+        if(false) {
             myAlgo.processSampleBlock(in2d, 1, out2d, 1, leftChannel.length);
         } else {
             // Just copy the array, for testing
             for(int i = 0; i < leftChannel.length; i++) {
-                out2d[0][i] = leftChannel[i] / Short.MAX_VALUE;
+                out2d[0][i] = leftChannel[i]; // / Short.MAX_VALUE;
             }
         }
         return out2d[0];
