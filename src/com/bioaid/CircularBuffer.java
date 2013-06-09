@@ -41,36 +41,4 @@ public class CircularBuffer<T> {
         return list.get(front);
     }
 
-    public static void main(String[] args) {
-        CircularBuffer<Double> buffer = new CircularBuffer<Double>(3);
-//        buffer.set_capacity(5);
-        buffer.push_back(1D);
-        System.out.println("front after 1 " + buffer.front + " " + buffer.back + " " + buffer.list + " " + buffer.front());
-
-        buffer.push_back(2D);
-        System.out.println("front after 2 " + buffer.front + " " + buffer.back + " " + buffer.list + " " + buffer.front());
-        buffer.push_back(3D);
-        System.out.println("front after 3 " + buffer.front + " " + buffer.back + " " + buffer.list + " " + buffer.front());
-
-        buffer.push_back(4D);
-        System.out.println("front after 4 " + buffer.front + " " + buffer.back + " " + buffer.list + " " + buffer.front());
-
-//        System.out.println(buffer.front());
-//        System.out.println(buffer.front());
-
-        buffer.push_back(3D);
-        buffer.push_back(4D);
-        buffer.push_back(5D);
-        buffer.push_back(6D);
-        buffer.push_back(7D);
-
-        System.out.println(buffer.front());
-        System.out.println(buffer.front());
-
-        buffer.push_back(8D);
-
-        System.out.println(buffer.front());
-        System.out.println(buffer.front());
-    }
-
 }

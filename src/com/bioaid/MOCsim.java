@@ -102,12 +102,12 @@ public class MOCsim extends AlgoProcessor {
                 //calculateMOCresponse(utils::pa2dbspl(stereoAccumulator/2.f));
             } else {
                 //stereoAccumulator = utils::pa2dbspl(dataSample);
-                stereoAccumulator = (float)Math.abs(dataSample);
+                stereoAccumulator = Math.abs(dataSample);
             }
             isSample2of2 = !isSample2of2;
         } else {
             //calculateMOCresponse(utils::pa2dbspl(dataSample));
-            calculateMOCresponse((float)Math.abs(dataSample));
+            calculateMOCresponse(Math.abs(dataSample));
         }
     }
 }
