@@ -41,6 +41,7 @@ public class MainActivity extends Activity {
     private ArrayList<Integer> inLevels;
     private ArrayList<Integer> outLevels;
     private Handler equaliserHandler;
+    private static final int lastN = 10;
 
     private void startPlaying() {
         audioPlayer = new AudioTrack(3, 
@@ -94,19 +95,19 @@ public class MainActivity extends Activity {
         inLevels.add(R.id.level11a);
         inLevels.add(R.id.level12a);
         inLevels.add(R.id.level13a);
-        outLevels.add(R.id.level1a);
-        outLevels.add(R.id.level2a);
-        outLevels.add(R.id.level3a);
-        outLevels.add(R.id.level4a);
-        outLevels.add(R.id.level5a);
-        outLevels.add(R.id.level6a);
-        outLevels.add(R.id.level7a);
-        outLevels.add(R.id.level8a);
-        outLevels.add(R.id.level9a);
-        outLevels.add(R.id.level10a);
-        outLevels.add(R.id.level11a);
-        outLevels.add(R.id.level12a);
-        outLevels.add(R.id.level13a);
+        outLevels.add(R.id.level1b);
+        outLevels.add(R.id.level2b);
+        outLevels.add(R.id.level3b);
+        outLevels.add(R.id.level4b);
+        outLevels.add(R.id.level5b);
+        outLevels.add(R.id.level6b);
+        outLevels.add(R.id.level7b);
+        outLevels.add(R.id.level8b);
+        outLevels.add(R.id.level9b);
+        outLevels.add(R.id.level10b);
+        outLevels.add(R.id.level11b);
+        outLevels.add(R.id.level12b);
+        outLevels.add(R.id.level13b);
         
         // Set up the headset monitor
         IntentFilter localIntentFilter = new IntentFilter("android.intent.action.HEADSET_PLUG");
@@ -162,10 +163,12 @@ public class MainActivity extends Activity {
                         long totalIn = 0;
                         if(true) {
                             // Real input
-                            for(int j = 0; j < AUDIO_BUFFER_SIZE; j += 2) {
-                                input[j / 2] = Float.valueOf(bb.getShort()); //((double)bb.getShort()) / ((double)Short.MAX_VALUE);
+                            for(int j = 0; j < (AUDIO_BUFFER_SIZE / 2); j++) {
+                                input[j] = Float.valueOf(bb.getShort()); //((double)bb.getShort()) / ((double)Short.MAX_VALUE);
                                 //input[j / 2] = Math.log10(Math.abs((double)bb.getShort()) / ((double)Short.MAX_VALUE));
-                                totalIn = (long) Math.abs(input[j / 2]);
+                                if(j >= ((AUDIO_BUFFER_SIZE / 2) - lastN)) {
+                                    totalIn += (long) Math.abs(input[j]);
+                                }
                             }
                         } else {
                             // Sine wave
@@ -177,9 +180,12 @@ public class MainActivity extends Activity {
                             for (int j = 0; j < (AUDIO_BUFFER_SIZE) / 2; j++) {
                                 input[j] = (short) (Math.sin(angle) * Short.MAX_VALUE);
                                 angle += increment;
-                                totalIn = (long) Math.abs(input[j]);
+                                if(j >= ((AUDIO_BUFFER_SIZE / 2) - lastN)) {
+                                    totalIn += (long) Math.abs(input[j]);
+                                }
                             }
                         }
+                        totalIn /= lastN;
                         
                         // Process the input
                         //long time = System.nanoTime();
@@ -194,8 +200,11 @@ public class MainActivity extends Activity {
                             float value = output[j];
                             //short value = (short)(output[j] * Short.MAX_VALUE);
                             bb2.putShort((short)value);
-                            totalOut = Math.abs((short)value);
+                            if(j >= ((AUDIO_BUFFER_SIZE / 2) - lastN)) {
+                                totalOut += Math.abs((short)value);
+                            }
                         }
+                        totalOut /= lastN;
                         audioPlayer.write(outputBytes, 0, i);
                         
                         // Update the equalisers
@@ -214,13 +223,16 @@ public class MainActivity extends Activity {
     public void updateEqualiser(long totalIn, long totalOut) {
         int maxLevels = 13;
         for(int k = 0; k < maxLevels; k++) {
+            short baseLevel = 5000;
+            
+            // use log for db
             double percentage = ((double)k) / ((double)(maxLevels - 1));
-            double inLevel = ((double)totalIn);
-            inLevel = Math.log10(inLevel); // use log for db
-            inLevel /= 4.5154366811; // log10 of ((double)Short.MAX_VALUE);
-            double outLevel = ((double)totalOut);
+            double inLevel = Math.max(0, (double)(totalIn - baseLevel));
+            inLevel = Math.log10(inLevel);
+            inLevel /= Math.log10(Short.MAX_VALUE - baseLevel);
+            double outLevel = Math.max(0, (double)(totalOut - baseLevel));
             outLevel = Math.log10(outLevel);
-            outLevel /= 4.5154366811; // log10 of ((double)Short.MAX_VALUE);
+            outLevel /= Math.log10(Short.MAX_VALUE - baseLevel);
             ImageView inView = (ImageView)MainActivity.this.findViewById(inLevels.get(k));
             ImageView outView = (ImageView)MainActivity.this.findViewById(outLevels.get(k));
             if(inLevel > percentage) {
