@@ -48,4 +48,4 @@ public class MOCsimContainer extends ParamContextClient {
         return MOCbands.get(index);
     }
 
-};
+}

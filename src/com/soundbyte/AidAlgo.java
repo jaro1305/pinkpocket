@@ -38,43 +38,13 @@ public class AidAlgo {
 
     }
 
-    void processSampleBlock(float[][] inputChannelData,
-                            int numInputChannels,
-                            float[][] outputChannelData,
-                            int numOutputChannels,
+    void processSampleBlock(float[] inputChannelData,
+                            float[] outputChannelData,
                             int numSamples) {
 
-        boolean isStereo = true;
-        // No point processing stereo if there is only one output channel
-        // ..or if there is only a MONO processor
-        if ((numInputChannels > numOutputChannels) || (pManagerR == null)) {
-            isStereo = false;
+        for (int nn = 0; nn < numSamples; ++nn) {
+            outputChannelData[nn] = pManagerL.process(inputChannelData[nn]);
         }
-
-        //This code sets the index for the right input channel
-        //If both outputs are sharing a common input then the following loop needs to know
-        int inRightIdx = 0;
-        if (numInputChannels == 2)
-            inRightIdx = 1;
-
-        pMyMutex.lock();
-        try {//New scope just for lock
-            for (int nn = 0; nn < numSamples; ++nn) {
-                outputChannelData[0][nn] = pManagerL.process(inputChannelData[0][nn]);
-                if (isStereo)
-                    outputChannelData[1][nn] = pManagerR.process(inputChannelData[inRightIdx][nn]);
-            }
-        } finally {
-            pMyMutex.unlock();
-        }//Mutex unlocked
-
-        //Copy the data into both channels if we are mono
-        if (!isStereo && (numOutputChannels == 2)) {
-            for (int nn = 0; nn < numSamples; ++nn) {
-                outputChannelData[1][nn] = outputChannelData[0][nn];
-            }
-        }
-
     }
 
 

@@ -42,11 +42,7 @@ public class FilterFrequencyBand extends AlgoProcessor {
             inFilter.initCoeffs(1.f / sampleRate, loCut, hiCut);
             outFilter.initCoeffs(1.f / sampleRate, loCut, hiCut);
         }
-
     }
-
-    ;
-
 
     public FilterFrequencyBand(ParameterContextModel unique_pars, ParameterContextModel shared_pars, int _index, MOCsim _moc_ptr) {
         unique_pars_ref = unique_pars;
@@ -66,11 +62,8 @@ public class FilterFrequencyBand extends AlgoProcessor {
 
     }
 
-    ;
-
-
-    float process(float inputSample) {
-        float tmp = inFilter.process(inputSample);
+    float process(float tmp) {
+        tmp = inFilter.process(tmp);
 
         //Stuff between the filters!
         tmp = moc_ptr.process(tmp);

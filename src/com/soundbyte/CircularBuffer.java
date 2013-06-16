@@ -1,15 +1,13 @@
 package com.soundbyte;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedList;
 
 /**
  * Created by jaro on 6/8/13.
  */
-public class CircularBuffer<T> {
+public class CircularBuffer {
 
-    LinkedList<T> list = new LinkedList<T>();
+    LinkedList<Float> list = new LinkedList<Float>();
     int capacity;
 
     public CircularBuffer(int size) {
@@ -20,18 +18,18 @@ public class CircularBuffer<T> {
         this.capacity = capacity;
     }
 
-    public void push_back(T v) {
+    public void push_back(float v) {
         list.add(v);
         if (list.size() > capacity)
             list.remove(0);
     }
 
-    public T front() {
+    public float front() {
         return list.get(0);
     }
 
     public static void main(String[] args) {
-            CircularBuffer<Integer> cb = new CircularBuffer<Integer>(3);
+            CircularBuffer cb = new CircularBuffer(3);
             //cb.set_capacity(5);
             cb.push_back(1);
             System.out.println("front after 1 " + cb.front());

@@ -25,11 +25,9 @@ public class Main {
         // Make the data look like 2D C-style arrays (the process mathod requires data in this format)
         // ..this fits with other audio APIs like VST, even if it is a bit of an eye-bleeder
         float[] plDataIn = lDataIn;
-        float[] prDataIn = rDataIn;
         float[] plDataOut = lDataOut;
-        float[] prDataOut = rDataOut;
-        float in2D[][] = new float[][]{plDataIn, prDataIn};
-        float out2D[][] = new float[][]{plDataOut, prDataOut};
+        float in2D[] = plDataIn;
+        float out2D[] = plDataOut;
 
         showData(lDataIn, rDataIn, numSamples);
 
@@ -51,15 +49,15 @@ public class Main {
             SharedStereoParams sharedPars = new SharedStereoParams(myMutex);
             UniqueStereoParams leftPars = new UniqueStereoParams(myMutex);
             UniqueStereoParams rightPars = new UniqueStereoParams(myMutex);
-            AidAlgo myAlgo = new AidAlgo(leftPars, rightPars, sharedPars, myMutex); //Supply with identical LR pars
+            AidAlgo myAlgo = new AidAlgo(leftPars, rightPars, sharedPars, null); //Supply with identical LR pars
 
 
-            myAlgo.processSampleBlock(in2D, 2, out2D, 2, numSamples);
+            myAlgo.processSampleBlock(in2D, out2D, numSamples);
             showData(lDataOut, rDataOut, numSamples);
 
             // Now change a parameter in one channel, process and see the new output
             assert (!rightPars.setParam("OutputGain_dB", 6.f));  // Returns a bool letting you know if the parameter you're trying to set exists. Need to replace with exception.
-            myAlgo.processSampleBlock(in2D, 2, out2D, 2, numSamples);
+            myAlgo.processSampleBlock(in2D, out2D, numSamples);
             showData(lDataOut, rDataOut, numSamples);
         }
         System.out.println("\n\n Demo 1 END \n\n");
@@ -88,7 +86,7 @@ public class Main {
             leftPars.setParam("Band_3_Gain_dB", 10.f);
             sharedPars.setParam("NumBands", 4.f);
             AidAlgo myAlgo = new AidAlgo(leftPars, sharedPars, myMutex); //Supply with identical LR pars
-            myAlgo.processSampleBlock(in2D, 1, out2D, 2, numSamples);
+            myAlgo.processSampleBlock(in2D, out2D, numSamples);
             showData(lDataOut, rDataOut, numSamples);
         }
         System.out.println("\n\n Demo 2 END \n\n");

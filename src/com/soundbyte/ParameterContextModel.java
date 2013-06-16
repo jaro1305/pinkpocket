@@ -49,14 +49,10 @@ public abstract class ParameterContextModel {
         if (isNewKey || isNewVal) {
             paramMap.put(key, newVal);   //Only go to the effort of updating map if something is new
 
-            pMyMutex.lock(); //Lock this as short as possible
-            try {
-                for (ParamContextClient listener : listeners) {
-                    listener.updatePars();
-                }
-            } finally {
-                pMyMutex.unlock();
+            for (ParamContextClient listener : listeners) {
+                listener.updatePars();
             }
+
         }
 
         if (isNewKey) {

@@ -15,7 +15,7 @@ public class ARsim extends AlgoProcessor {
     ParameterContextModel unique_pars_ref;
     ParameterContextModel shared_pars_ref;
 
-    CircularBuffer<Float> circBuff_ptr;
+    CircularBuffer circBuff_ptr;
 
     float sampleRate, tc, latency, thresh_pa;
 

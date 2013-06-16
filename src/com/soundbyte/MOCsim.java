@@ -8,7 +8,7 @@ import com.soundbyte.app.MainActivity;
 public class MOCsim extends AlgoProcessor {
     ParameterContextModel shared_pars_ref;
 
-    CircularBuffer<Float> circBuff_ptr;
+    CircularBuffer circBuff_ptr;
 
     int index; //Lexical-cast this to get parameters
     float sampleRate, tc, latency, factor, thresh_dB, thresh_pa;
@@ -37,7 +37,7 @@ public class MOCsim extends AlgoProcessor {
 
     MOCsim(ParameterContextModel _shared_pars, int _index) {
         shared_pars_ref = _shared_pars;
-        circBuff_ptr = new CircularBuffer<Float>(MainActivity.AUDIO_SAMPLING_RATE/100);//new CircularBuffer<Float>(441);
+        circBuff_ptr = new CircularBuffer(MainActivity.AUDIO_SAMPLING_RATE/100);//new CircularBuffer<Float>(441);
         index = _index;
         sampleRate = (float) MainActivity.AUDIO_SAMPLING_RATE;//44100.0f;
         tc = 0.050f;
