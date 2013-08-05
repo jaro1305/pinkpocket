@@ -17,6 +17,13 @@ import com.soundbyte.BioAidFilterService;
 import java.util.ArrayList;
 
 public class MainActivity extends Activity {
+    private static final boolean USE_C_LIBRARY = true;
+    
+    // Load the BioAid library
+    static {
+        System.loadLibrary("bioaid"); // "libbioaid.so"
+    }
+    
     // Constants
     private static final int AUDIO_CHANNEL_CONFIG = AudioFormat.CHANNEL_CONFIGURATION_MONO;
     private static final int AUDIO_SOURCE = 1;
@@ -165,6 +172,10 @@ public class MainActivity extends Activity {
 
     private class Streamer extends Thread {
         public void run() {
+            // TODO: Quick test of the native call - replace the code below
+            getMessage();
+            
+            // Java version
             BioAidFilterService bafs = new BioAidFilterService();
             while (!isQuitting) {
                 if (isGoing) {
@@ -327,4 +338,11 @@ public class MainActivity extends Activity {
         audioRecorder.release();
         audioRecorder = null;
     }
+    
+    /**
+     * Native library call
+     * 
+     * @return
+     */
+    public native String getMessage();
 }
