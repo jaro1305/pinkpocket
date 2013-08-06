@@ -172,11 +172,11 @@ public class MainActivity extends Activity {
 
     private class Streamer extends Thread {
         public void run() {
-            // TODO: Quick test of the native call - replace the code below
+            // Native version
             getMessage();
             
             // Java version
-            BioAidFilterService bafs = new BioAidFilterService();
+            /*BioAidFilterService bafs = new BioAidFilterService();
             while (!isQuitting) {
                 if (isGoing) {
                     int sampleSize = audioRecorder.read(inData,
@@ -234,7 +234,7 @@ public class MainActivity extends Activity {
                         equaliserHandler.sendMessage(msg);
                     }
                 }
-            }
+            }*/
         }
     }
     

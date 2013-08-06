@@ -7,16 +7,89 @@
 #include "params.hpp"
 #include "algoComponents.hpp"
 #include "algoInterface.hpp"
+#include "opensl_io.h"
+
+#define BUFFERFRAMES 1024
+#define VECSAMPS_MONO 64
+#define VECSAMPS_STEREO 128
+#define SR 44100
+
+#define BIOAID_ON 1
+
+static int on;
 
 extern "C" {
     void showData(const float* L, const float*R, int numel);
     int main();
+    void start_process();
+    void stop_process();
 }
 
 JNIEXPORT jstring JNICALL Java_com_soundbyte_app_MainActivity_getMessage
           (JNIEnv *env, jobject thisObj) {
-    main();
+	start_process();
     return env->NewStringUTF("Hello from native code!");
+}
+
+void start_process() {
+  OPENSL_STREAM  *p;
+  int samps, i, j;
+  float  inbuffer[VECSAMPS_MONO], outbuffer[VECSAMPS_STEREO];
+  p = android_OpenAudioDevice(SR,1,2,BUFFERFRAMES);
+  if(p == NULL) return;
+  on = 1;
+  while(on) {
+   samps = android_AudioIn(p,inbuffer,VECSAMPS_MONO);
+   if(BIOAID_ON == 1) {
+	   cSharedStereoParams sharedPars;
+	   cUniqueStereoParams leftPars;
+	   assert(!leftPars.setParam("OutputGain_dB", 6.f));
+	   assert(!leftPars.setParam("InputGain_dB", 6.f));
+	   assert(!leftPars.setParam("Band_3_Gain_dB", 10.f));
+	   assert(!sharedPars.setParam("NumBands", 4.f));
+	   cAidAlgo myAlgo(leftPars, sharedPars); //Supply with identical LR pars
+
+	   boost::scoped_array<float> lDataIn( new float[samps]() );
+	   boost::scoped_array<float> rDataIn( new float[samps]() );
+	   boost::scoped_array<float> lDataOut( new float[samps]() );
+	   boost::scoped_array<float> rDataOut( new float[samps]() );
+
+	   float *plDataIn = lDataIn.get();
+	   float *prDataIn = rDataIn.get();
+
+	   for(int i = 0; i < samps; i++) {
+		   *plDataIn = inbuffer[i];
+		   plDataIn++;
+		   *prDataIn = inbuffer[i];
+		   prDataIn++;
+	   }
+
+	   float *plDataOut = lDataOut.get();
+	   float *prDataOut = rDataOut.get();
+
+	   float* in2D[] =  {plDataIn, prDataIn};
+	   float* out2D[] = {plDataOut, prDataOut};
+
+	   myAlgo.processSampleBlock ((const float**) in2D,  1,  (float**) out2D,   2,   samps);
+
+   for(int i = 0; i < samps; i++) {
+	   outbuffer[(i * 2)] = *plDataOut;
+	   plDataOut++;
+	   outbuffer[(i * 2) + 1] = *prDataOut;
+	   prDataOut++;
+   }
+  } else {
+	  for(int i = 0; i < samps; i++) {
+	  	   outbuffer[(i * 2)] = outbuffer[(i * 2) + 1] = inbuffer[i];
+	     }
+  }
+   android_AudioOut(p,outbuffer,samps*2);
+  }
+  android_CloseAudioDevice(p);
+}
+
+void stop_process(){
+  on = 0;
 }
 
 // vis helper
