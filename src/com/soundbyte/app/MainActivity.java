@@ -12,7 +12,6 @@ import android.view.Menu;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.SeekBar;
-import com.soundbyte.BioAidFilterService;
 
 import java.util.ArrayList;
 
@@ -38,12 +37,6 @@ public class MainActivity extends Activity {
 
     // Variables
     private AudioManager audioManager;
-    private AudioTrack audioPlayer;
-    private AudioRecord audioRecorder;
-    private short[] inData;
-    private float[] inDataFloat;
-    private short[] outData;
-    private float[] outDataFloat;
     private boolean isGoing;
     private boolean isQuitting;
     private boolean started;
@@ -55,23 +48,7 @@ public class MainActivity extends Activity {
     private double oldInLevel;
     private double oldOutLevel;
 
-    private void startPlaying() {
-        audioPlayer = new AudioTrack(AudioManager.STREAM_MUSIC,
-                AUDIO_SAMPLING_RATE, 
-                AUDIO_CHANNEL_CONFIG, 
-                AUDIO_ENCODING, 
-                AUDIO_BUFFER_SIZE, 
-                AUDIO_MODE);
-        audioPlayer.play();
-    }
-
-    private void startRecording() {
-        audioRecorder = new AudioRecord(MediaRecorder.AudioSource.MIC,
-                AUDIO_SAMPLING_RATE, 
-                AUDIO_CHANNEL_CONFIG,
-                AUDIO_ENCODING, 
-                AUDIO_BUFFER_SIZE);
-        audioRecorder.startRecording();
+    private void startBioAid() {
         isGoing = true;
         isQuitting = false;
         streamer = new Streamer();
@@ -92,10 +69,6 @@ public class MainActivity extends Activity {
         oldInLevel = 1; // Start at 100%
         oldOutLevel = 1; // Start at 100%
         started = false;
-        inData = new short[AUDIO_BUFFER_SIZE];
-        inDataFloat = new float[AUDIO_BUFFER_SIZE];
-        outData = new short[AUDIO_BUFFER_SIZE];
-        outDataFloat = new float[AUDIO_BUFFER_SIZE];
         isGoing = false;
         isQuitting = false;
         
@@ -172,69 +145,7 @@ public class MainActivity extends Activity {
 
     private class Streamer extends Thread {
         public void run() {
-            // Native version
-            getMessage();
-            
-            // Java version
-            /*BioAidFilterService bafs = new BioAidFilterService();
-            while (!isQuitting) {
-                if (isGoing) {
-                    int sampleSize = audioRecorder.read(inData,
-                            0,
-                            MainActivity.AUDIO_BUFFER_SIZE);
-                    if (audioPlayer != null && (audioPlayer.getPlayState() == 3) && (sampleSize > 0)) {
-                        float inAmplitude = 0;
-                        if(true) {
-                            // Real input
-                            for(int j = 0; j < sampleSize; j++) {
-                                inDataFloat[j] = inData[j] / (float)Short.MAX_VALUE;
-                                if(j >= sampleSize - lastN) {
-                                    inAmplitude += Math.abs(inDataFloat[j]);
-                                }
-                            }
-                        } else {
-                            // Sine wave
-                            int sampleRate = AUDIO_SAMPLING_RATE;
-                            int freqOfTone = 500;
-                            double angle = 0;
-                            double increment = (2 * Math.PI * freqOfTone / sampleRate); // angular increment 
-    
-                            for (int j = 0; j < sampleSize; ++j) {
-                                inDataFloat[j] = (float)Math.sin(angle);
-                                angle += increment;
-                                if(j >= sampleSize - lastN) {
-                                    inAmplitude += Math.abs(inDataFloat[j]);
-                                }
-                            }
-                        }
-                        inAmplitude /= lastN;
-                        
-                        // Process the input
-                        //long time = System.nanoTime();
-                        bafs.processBlock(inDataFloat, outDataFloat, sampleSize);
-                        //Log.e("MainActivity", "time:" + (System.nanoTime() - time));
-
-                        // Scale and then write the output
-                        float outAmplitude = 0;
-                        for(int j = 0; j < sampleSize; ++j) {
-                            outData[j] = (short)(outDataFloat[j] * Short.MAX_VALUE);
-                            if(j >= sampleSize - lastN) {
-                                outAmplitude += Math.abs(outDataFloat[j]);
-                            }
-                        }
-                        outAmplitude /= lastN;
-                        audioPlayer.write(outData, 0, sampleSize);
-                        
-                        // Update the equalisers
-                        Message msg = new Message();
-                        Bundle bundle = new Bundle();
-                        bundle.putFloat("in", inAmplitude);
-                        bundle.putFloat("out", outAmplitude);
-                        msg.setData(bundle);
-                        equaliserHandler.sendMessage(msg);
-                    }
-                }
-            }*/
+            startProcessing();
         }
     }
     
@@ -281,13 +192,11 @@ public class MainActivity extends Activity {
     
     public void onActionButtonClicked(View paramView) {
         if(!started) {
-            startRecording();
-            startPlaying();
+            startBioAid();
             paramView.setBackgroundResource(R.drawable.onbutton);
             paramView.setContentDescription("On");
         } else {
-            stopRecording();
-            stopPlaying();
+            stopBioAid();
             paramView.setBackgroundResource(R.drawable.offbutton);
             paramView.setContentDescription("Off");
         }
@@ -318,31 +227,20 @@ public class MainActivity extends Activity {
     public void suspend() {
         isGoing = false;
     }
-    
-    private void stopPlaying() {
-        audioPlayer.stop();
-        audioPlayer.release();
-        audioPlayer = null;
-    }
 
-    private void stopRecording() {
+    private void stopBioAid() {
         isGoing = false;
         isQuitting = true;
         try {
+            stopProcessing();
             streamer.join();
         } catch (InterruptedException localInterruptedException) {
                 localInterruptedException.printStackTrace();
         }
         isQuitting = false;
-        audioRecorder.stop();
-        audioRecorder.release();
-        audioRecorder = null;
     }
     
-    /**
-     * Native library call
-     * 
-     * @return
-     */
-    public native String getMessage();
+    // Native library calls
+    public native String startProcessing();
+    public native String stopProcessing();
 }

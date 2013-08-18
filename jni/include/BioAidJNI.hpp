@@ -74,10 +74,18 @@ extern "C" {
 
 /*
  * Class:     com_example_bioaiddemo_MainActivity
- * Method:    getMessage
+ * Method:    startProcessing
  * Signature: ()Ljava/lang/String;
  */
-JNIEXPORT jstring JNICALL Java_com_soundbyte_app_MainActivity_getMessage
+JNIEXPORT jstring JNICALL Java_com_soundbyte_app_MainActivity_startProcessing
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_example_bioaiddemo_MainActivity
+ * Method:    stopProcessing
+ * Signature: ()Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_com_soundbyte_app_MainActivity_stopProcessing
   (JNIEnv *, jobject);
 
 #ifdef __cplusplus

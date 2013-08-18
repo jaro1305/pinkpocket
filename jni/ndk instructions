@@ -343,10 +343,9 @@ include $(PREBUILT_STATIC_LIBRARY)
 (see http://www.kandroid.org/ndk/docs/ANDROID-MK.html for the format)
 (replace LOCAL_PATH with an appropriate one)
 
-28. Delete obj and libs directories in <project directory> directory - you should do this for every build
-29. cd to <project directory>
-30. run:
+28. cd to <project directory>
+29. run:
 
-<ndk dir>/ndk-build V=1 -B
+./build.sh
 
 (See this for a possible shared_ptr fix: http://stackoverflow.com/questions/4347151/how-to-use-the-boost-library-including-shared-ptr-with-the-android-ndk-and-stl)
